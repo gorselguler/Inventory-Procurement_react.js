@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, Filter, Plus, MoreVertical, Package, AlertTriangle, CheckCircle2, Pencil } from 'lucide-react';
+import { Search, Filter, Plus, MoreVertical, Package, AlertTriangle, CheckCircle2, Pencil, ShoppingCart } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { StockStatus, Product } from '../../types';
 import { motion } from 'motion/react';
+import ProcurementForm from '../procurement/ProcurementForm';
 
 // Shadcn UI Components
 import {
@@ -51,7 +52,9 @@ export default function Inventory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [procurementProduct, setProcurementProduct] = useState<Product | null>(null);
   const [newStockValue, setNewStockValue] = useState<number>(0);
+  const [isProcurementOpen, setIsProcurementOpen] = useState(false);
 
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category));
@@ -184,45 +187,61 @@ export default function Inventory() {
                         <p className="text-sm font-bold text-zinc-900">${product.unitPrice.toLocaleString()}</p>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
-                        <Dialog open={editingProduct?.id === product.id} onOpenChange={(open) => {
-                          if (open) {
-                            setEditingProduct(product);
-                            setNewStockValue(product.currentStock);
-                          } else {
-                            setEditingProduct(null);
-                          }
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-zinc-400 hover:text-orange-500">
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Update Stock</DialogTitle>
-                              <DialogDescription>
-                                Adjust current stock level for {product.name}.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="stock" className="text-right">
-                                  Stock
-                                </Label>
-                                <Input
-                                  id="stock"
-                                  type="number"
-                                  value={newStockValue}
-                                  onChange={(e) => setNewStockValue(parseInt(e.target.value) || 0)}
-                                  className="col-span-3"
-                                />
+                        <div className="flex items-center gap-2 justify-end">
+                          <Dialog open={editingProduct?.id === product.id} onOpenChange={(open) => {
+                            if (open) {
+                              setEditingProduct(product);
+                              setNewStockValue(product.currentStock);
+                            } else {
+                              setEditingProduct(null);
+                            }
+                          }}>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-zinc-400 hover:text-orange-500">
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Update Stock</DialogTitle>
+                                <DialogDescription>
+                                  Adjust current stock level for {product.name}.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="stock" className="text-right">
+                                    Stock
+                                  </Label>
+                                  <Input
+                                    id="stock"
+                                    type="number"
+                                    value={newStockValue}
+                                    onChange={(e) => setNewStockValue(parseInt(e.target.value) || 0)}
+                                    className="col-span-3"
+                                  />
+                                </div>
                               </div>
-                            </div>
-                            <DialogFooter>
-                              <Button type="submit" onClick={handleUpdateStock} className="bg-orange-500 hover:bg-orange-600">Save changes</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                              <DialogFooter>
+                                <Button type="submit" onClick={handleUpdateStock} className="bg-orange-500 hover:bg-orange-600">Save changes</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+
+                          {product.status !== StockStatus.IN_STOCK && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 text-zinc-400 hover:text-orange-500"
+                              onClick={() => {
+                                setProcurementProduct(product);
+                                setIsProcurementOpen(true);
+                              }}
+                            >
+                              <ShoppingCart className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </motion.tr>
                   );
@@ -241,6 +260,14 @@ export default function Inventory() {
             </TableBody>
           </Table>
         </div>
+
+        <ProcurementForm 
+          product={procurementProduct} 
+          isOpen={isProcurementOpen} 
+          onClose={() => setIsProcurementOpen(false)} 
+        />
+
+
 
         <div className="p-4 bg-zinc-50/50 border-t border-zinc-100 flex items-center justify-between">
           <p className="text-xs text-zinc-500 font-medium">Showing {filteredProducts.length} products</p>
