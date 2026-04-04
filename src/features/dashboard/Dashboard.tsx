@@ -18,6 +18,7 @@ import {
   Area
 } from 'recharts';
 import { Product, PurchaseOrder, PurchaseOrderStatus, StockStatus } from '../../types';
+import { useCurrency } from '@/src/lib/CurrencyContext';
 
 // Mock data for demonstration
 const mockProducts: Product[] = [];
@@ -27,6 +28,7 @@ const mockOrders: PurchaseOrder[] = [];
 const stockMovementData: any[] = [];
 
 export default function Dashboard() {
+  const { formatPrice } = useCurrency();
   const totalStockValue = mockProducts.reduce((sum, p) => sum + (p.currentStock * p.unitPrice), 0);
   const lowStockAlerts = mockProducts.filter(p => p.currentStock < p.minThreshold).length;
   const pendingOrders = mockOrders.filter(o => o.status === PurchaseOrderStatus.PENDING).length;
@@ -34,7 +36,7 @@ export default function Dashboard() {
   const stats = [
     { 
       label: 'Total Stock Value', 
-      value: `$${totalStockValue.toLocaleString()}`, 
+      value: formatPrice(totalStockValue), 
       change: '+4.5%', 
       trend: 'up', 
       icon: TrendingUp, 

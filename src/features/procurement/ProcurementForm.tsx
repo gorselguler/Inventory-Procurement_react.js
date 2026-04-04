@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useCurrency } from '@/src/lib/CurrencyContext';
 import { PurchaseOrderStatus, Product, Supplier } from '../../types';
 
 const purchaseOrderSchema = z.object({
@@ -41,6 +42,7 @@ const MOCK_SUPPLIERS: Supplier[] = [];
 
 export default function ProcurementForm({ product, isOpen, onClose }: ProcurementFormProps) {
   const queryClient = useQueryClient();
+  const { currency } = useCurrency();
   
   // Auto-populate supplier based on product category
   const defaultSupplier = MOCK_SUPPLIERS.find(s => 
@@ -128,7 +130,7 @@ export default function ProcurementForm({ product, isOpen, onClose }: Procuremen
               {errors.quantity && <p className="text-[10px] text-rose-500">{errors.quantity.message}</p>}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="unitPrice">Unit Price ($)</Label>
+              <Label htmlFor="unitPrice">Unit Price ({currency.symbol})</Label>
               <Input 
                 id="unitPrice" 
                 type="number" 

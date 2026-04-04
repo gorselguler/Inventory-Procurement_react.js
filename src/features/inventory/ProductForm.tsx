@@ -6,6 +6,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -25,6 +27,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Product, StockStatus } from '../../types';
+import { useCurrency } from '@/src/lib/CurrencyContext';
 
 const productSchema = z.object({
   name: z.string().min(2, 'Product name is required'),
@@ -43,9 +46,14 @@ interface ProductFormProps {
   onSubmit: (product: Product) => void;
 }
 
-const CATEGORIES = ['Electronics', 'Mechanical', 'Hardware', 'Software', 'Other'];
+const INITIAL_CATEGORIES = ['Electronics', 'Mechanical', 'Hardware', 'Software', 'Other'];
 
 export default function ProductForm({ isOpen, onClose, onSubmit }: ProductFormProps) {
+  const [categories, setCategories] = useState<string[]>(INITIAL_CATEGORIES);
+  const [newCategory, setNewCategory] = useState('');
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const { currency } = useCurrency();
+
   const {
     register,
     handleSubmit,
@@ -66,6 +74,16 @@ export default function ProductForm({ isOpen, onClose, onSubmit }: ProductFormPr
   });
 
   const categoryValue = watch('category');
+
+  const handleAddCategory = () => {
+    if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+      const formattedCategory = newCategory.trim();
+      setCategories(prev => [...prev, formattedCategory]);
+      setValue('category', formattedCategory);
+      setNewCategory('');
+      setIsAddingCategory(false);
+    }
+  };
 
   const onFormSubmit = (data: ProductFormData) => {
     let status = StockStatus.IN_STOCK;
@@ -107,20 +125,52 @@ export default function ProductForm({ isOpen, onClose, onSubmit }: ProductFormPr
               {errors.sku && <p className="text-xs text-rose-500">{errors.sku.message}</p>}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
-              <Select 
-                value={categoryValue} 
-                onValueChange={(val) => setValue('category', val)}
-              >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map(cat => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="category">Category</Label>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                  onClick={() => setIsAddingCategory(!isAddingCategory)}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  New
+                </Button>
+              </div>
+              
+              {isAddingCategory ? (
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="New category" 
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="h-10"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    className="h-10"
+                    onClick={handleAddCategory}
+                  >
+                    Add
+                  </Button>
+                </div>
+              ) : (
+                <Select 
+                  value={categoryValue} 
+                  onValueChange={(val) => setValue('category', val)}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               {errors.category && <p className="text-xs text-rose-500">{errors.category.message}</p>}
             </div>
           </div>
@@ -147,7 +197,7 @@ export default function ProductForm({ isOpen, onClose, onSubmit }: ProductFormPr
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="unitPrice">Unit Price ($)</Label>
+            <Label htmlFor="unitPrice">Unit Price ({currency.symbol})</Label>
             <Input 
               id="unitPrice" 
               type="number" 

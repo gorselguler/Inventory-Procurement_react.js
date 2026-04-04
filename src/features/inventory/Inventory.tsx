@@ -7,6 +7,7 @@ import { Search, Filter, Plus, MoreVertical, Package, AlertTriangle, CheckCircle
 import { useState, useMemo } from 'react';
 import { StockStatus, Product } from '../../types';
 import { motion } from 'motion/react';
+import { useCurrency } from '@/src/lib/CurrencyContext';
 import ProcurementForm from '../procurement/ProcurementForm';
 import ProductForm from './ProductForm';
 
@@ -51,6 +52,7 @@ export default function Inventory() {
   const [newStockValue, setNewStockValue] = useState<number>(0);
   const [isProcurementOpen, setIsProcurementOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const { formatPrice } = useCurrency();
 
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category));
@@ -193,7 +195,7 @@ export default function Inventory() {
                         </Badge>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
-                        <p className="text-sm font-bold text-zinc-900">${product.unitPrice.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-zinc-900">{formatPrice(product.unitPrice)}</p>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
                         <div className="flex items-center gap-2 justify-end">
