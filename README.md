@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # DEPO 89: Inventory & Procurement Management System
 
 ![Dashboard Preview](preview.png)
@@ -10,9 +5,6 @@
 A professional React-based dashboard for managing industrial inventory and procurement workflows. Built with a focus on real-time intelligence, clean UI, and robust data management.
 
 ## 🚀 Key Features
-=======
-**Prerequisites:**  Node.js
->>>>>>> 4de69401f50c7b8cd2ce076337e3db9f9dd8bd07
 
 - **Real-time Dashboard**: Overview of total stock value, low stock alerts, pending orders, and active products.
 - **Dynamic Analytics**: Visual representation of stock movements using Recharts (Inflow/Outflow).
