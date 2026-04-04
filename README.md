@@ -22,7 +22,7 @@ A professional React-based dashboard for managing industrial inventory and procu
 *Track and manage your entire stock with advanced filtering and search.*
 
 ### Add New Product
-![Add Product](add_new_products.png)
+![Add Product](add_new_product.png)
 *Quickly add products and create new categories on the fly.*
 
 ## 🛠️ Tech Stack & Implementation
