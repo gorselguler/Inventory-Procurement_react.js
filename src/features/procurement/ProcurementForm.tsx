@@ -37,11 +37,7 @@ interface ProcurementFormProps {
   onClose: () => void;
 }
 
-// Mock suppliers data
-const MOCK_SUPPLIERS: Supplier[] = [
-  { id: 'S1', name: 'Global Tech Solutions', contactPerson: 'John Smith', email: 'john@gt-solutions.com', phone: '123-456-7890', categories: ['Electronics', 'Hardware'] },
-  { id: 'S2', name: 'Industrial Hydraulics Inc.', contactPerson: 'Jane Doe', email: 'jane@ind-hyd.com', phone: '987-654-3210', categories: ['Mechanical'] },
-];
+const MOCK_SUPPLIERS: Supplier[] = [];
 
 export default function ProcurementForm({ product, isOpen, onClose }: ProcurementFormProps) {
   const queryClient = useQueryClient();

@@ -48,18 +48,6 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </button>
         ))}
       </nav>
-
-      <div className="absolute bottom-6 px-6 w-full">
-        {isOpen && (
-          <div className="p-4 bg-zinc-900 rounded-xl border border-zinc-800">
-            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">System Status</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-sm text-zinc-300">All systems online</span>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

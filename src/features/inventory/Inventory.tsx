@@ -8,6 +8,7 @@ import { useState, useMemo } from 'react';
 import { StockStatus, Product } from '../../types';
 import { motion } from 'motion/react';
 import ProcurementForm from '../procurement/ProcurementForm';
+import ProductForm from './ProductForm';
 
 // Shadcn UI Components
 import {
@@ -39,13 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
-const INITIAL_PRODUCTS: Product[] = [
-  { id: '1', name: 'Industrial Controller V2', sku: 'IC-V2-001', category: 'Electronics', currentStock: 450, minThreshold: 100, unitPrice: 245.00, status: StockStatus.IN_STOCK },
-  { id: '2', name: 'Hydraulic Pump HP-500', sku: 'HP-500-X', category: 'Mechanical', currentStock: 12, minThreshold: 15, unitPrice: 1240.00, status: StockStatus.LOW_STOCK },
-  { id: '3', name: 'Steel Bearing 25mm', sku: 'SB-25-MM', category: 'Hardware', currentStock: 1200, minThreshold: 500, unitPrice: 4.50, status: StockStatus.IN_STOCK },
-  { id: '4', name: 'Power Supply Unit 500W', sku: 'PSU-500-W', category: 'Electronics', currentStock: 0, minThreshold: 20, unitPrice: 85.00, status: StockStatus.OUT_OF_STOCK },
-  { id: '5', name: 'Pneumatic Valve PV-12', sku: 'PV-12-Z', category: 'Mechanical', currentStock: 8, minThreshold: 10, unitPrice: 320.00, status: StockStatus.LOW_STOCK },
-];
+const INITIAL_PRODUCTS: Product[] = [];
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -55,6 +50,7 @@ export default function Inventory() {
   const [procurementProduct, setProcurementProduct] = useState<Product | null>(null);
   const [newStockValue, setNewStockValue] = useState<number>(0);
   const [isProcurementOpen, setIsProcurementOpen] = useState(false);
+  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category));
@@ -73,6 +69,10 @@ export default function Inventory() {
       return matchesSearch && matchesCategory;
     });
   }, [products, searchQuery, categoryFilter]);
+
+  const handleAddProduct = (newProduct: Product) => {
+    setProducts(prev => [newProduct, ...prev]);
+  };
 
   const handleUpdateStock = () => {
     if (!editingProduct) return;
@@ -101,11 +101,20 @@ export default function Inventory() {
           <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">Inventory Management</h2>
           <p className="text-zinc-500 mt-1">Monitor and manage your product stock levels and thresholds.</p>
         </div>
-        <Button className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20">
+        <Button 
+          onClick={() => setIsAddProductOpen(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
       </header>
+
+      <ProductForm 
+        isOpen={isAddProductOpen} 
+        onClose={() => setIsAddProductOpen(false)} 
+        onSubmit={handleAddProduct} 
+      />
 
       <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-zinc-100 flex items-center justify-between gap-4">
