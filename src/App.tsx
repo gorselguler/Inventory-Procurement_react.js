@@ -14,16 +14,19 @@ import Navbar from './components/layout/Navbar';
 import Dashboard from './features/dashboard/Dashboard';
 import Inventory from './features/inventory/Inventory';
 import { AnimatePresence, motion } from 'motion/react';
+import { Product, PurchaseOrder } from './types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard products={products} orders={orders} />;
       case 'inventory':
-        return <Inventory />;
+        return <Inventory products={products} setProducts={setProducts} />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-[calc(100vh-120px)] text-zinc-400">

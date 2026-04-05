@@ -20,18 +20,18 @@ import {
 import { Product, PurchaseOrder, PurchaseOrderStatus, StockStatus } from '../../types';
 import { useCurrency } from '@/src/lib/CurrencyContext';
 
-// Mock data for demonstration
-const mockProducts: Product[] = [];
-
-const mockOrders: PurchaseOrder[] = [];
+interface DashboardProps {
+  products: Product[];
+  orders: PurchaseOrder[];
+}
 
 const stockMovementData: any[] = [];
 
-export default function Dashboard() {
+export default function Dashboard({ products, orders }: DashboardProps) {
   const { formatPrice } = useCurrency();
-  const totalStockValue = mockProducts.reduce((sum, p) => sum + (p.currentStock * p.unitPrice), 0);
-  const lowStockAlerts = mockProducts.filter(p => p.currentStock < p.minThreshold).length;
-  const pendingOrders = mockOrders.filter(o => o.status === PurchaseOrderStatus.PENDING).length;
+  const totalStockValue = products.reduce((sum, p) => sum + (p.currentStock * p.unitPrice), 0);
+  const lowStockAlerts = products.filter(p => p.currentStock < p.minThreshold).length;
+  const pendingOrders = orders.filter(o => o.status === PurchaseOrderStatus.PENDING).length;
 
   const stats = [
     { 
@@ -63,7 +63,7 @@ export default function Dashboard() {
     },
     { 
       label: 'Active Products', 
-      value: mockProducts.length.toString(), 
+      value: products.length.toString(), 
       change: '+1', 
       trend: 'up', 
       icon: Package, 

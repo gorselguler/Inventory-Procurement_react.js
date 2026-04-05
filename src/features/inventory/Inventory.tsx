@@ -4,7 +4,7 @@
  */
 
 import { Search, Filter, Plus, MoreVertical, Package, AlertTriangle, CheckCircle2, Pencil, ShoppingCart } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Dispatch, SetStateAction } from 'react';
 import { StockStatus, Product } from '../../types';
 import { motion } from 'motion/react';
 import { useCurrency } from '@/src/lib/CurrencyContext';
@@ -43,8 +43,12 @@ import { Label } from "@/components/ui/label";
 
 const INITIAL_PRODUCTS: Product[] = [];
 
-export default function Inventory() {
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+interface InventoryProps {
+  products: Product[];
+  setProducts: Dispatch<SetStateAction<Product[]>>;
+}
+
+export default function Inventory({ products, setProducts }: InventoryProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
