@@ -46,9 +46,10 @@ const INITIAL_PRODUCTS: Product[] = [];
 interface InventoryProps {
   products: Product[];
   setProducts: Dispatch<SetStateAction<Product[]>>;
+  setOrders: Dispatch<SetStateAction<PurchaseOrder[]>>;
 }
 
-export default function Inventory({ products, setProducts }: InventoryProps) {
+export default function Inventory({ products, setProducts, setOrders }: InventoryProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -120,6 +121,16 @@ export default function Inventory({ products, setProducts }: InventoryProps) {
         isOpen={isAddProductOpen} 
         onClose={() => setIsAddProductOpen(false)} 
         onSubmit={handleAddProduct} 
+      />
+
+      <ProcurementForm
+        product={procurementProduct}
+        isOpen={isProcurementOpen}
+        onClose={() => {
+          setIsProcurementOpen(false);
+          setProcurementProduct(null);
+        }}
+        onSubmit={(newOrder) => setOrders(prev => [newOrder, ...prev])}
       />
 
       <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">

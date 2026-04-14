@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,8 +19,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCurrency } from '@/src/lib/CurrencyContext';
-import { PurchaseOrderStatus, Product, Supplier } from '../../types';
+import { PurchaseOrderStatus, Product, Supplier, PurchaseOrder } from '../../types';
 
 const purchaseOrderSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
@@ -36,55 +43,70 @@ interface ProcurementFormProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (order: PurchaseOrder) => void;
 }
 
-const MOCK_SUPPLIERS: Supplier[] = [];
+export const MOCK_SUPPLIERS: Supplier[] = [
+  { id: 'S1', name: 'Global Components', contactPerson: 'John Smith', email: 'john@global.com', phone: '123-456-7890', categories: ['Electronics', 'Mechanical'] },
+  { id: 'S2', name: 'Direct Hardware', contactPerson: 'Jane Doe', email: 'jane@direct.com', phone: '098-765-4321', categories: ['Hardware'] },
+  { id: 'S3', name: 'Premium Supplies Co.', contactPerson: 'Robert Wilson', email: 'robert@premium.com', phone: '555-0199', categories: ['Industrial', 'Safety'] },
+];
 
-export default function ProcurementForm({ product, isOpen, onClose }: ProcurementFormProps) {
+export default function ProcurementForm({ product, isOpen, onClose, onSubmit }: ProcurementFormProps) {
   const queryClient = useQueryClient();
   const { currency } = useCurrency();
   
-  // Auto-populate supplier based on product category
-  const defaultSupplier = MOCK_SUPPLIERS.find(s => 
-    product ? s.categories.includes(product.category) : false
-  );
-
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    control,
+    formState: { errors },
     reset
   } = useForm<PurchaseOrderFormData>({
     resolver: zodResolver(purchaseOrderSchema),
-    values: product ? {
-      productId: product.id,
-      supplierId: defaultSupplier?.id || '',
-      quantity: product.minThreshold * 2,
-      unitPrice: product.unitPrice,
-      expectedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    } : undefined
   });
+
+  // Reset form when product changes or dialog opens
+  useEffect(() => {
+    if (product && isOpen) {
+      const defaultSupplier = MOCK_SUPPLIERS.find(s => s.categories.includes(product.category));
+      reset({
+        productId: product.id,
+        supplierId: defaultSupplier?.id || '',
+        quantity: product.minThreshold * 2,
+        unitPrice: product.unitPrice,
+        expectedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      });
+    }
+  }, [product, isOpen, reset]);
 
   const mutation = useMutation({
     mutationFn: async (data: PurchaseOrderFormData) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       return {
-        id: `PO-${Math.floor(Math.random() * 1000)}`,
-        ...data,
+        id: `PO-${Math.floor(Math.random() * 10000)}`,
+        supplierId: data.supplierId,
+        items: [{
+          productId: data.productId,
+          quantity: data.quantity,
+          unitPrice: data.unitPrice
+        }],
         status: PurchaseOrderStatus.PENDING,
         createdAt: new Date().toISOString(),
+        expectedDeliveryDate: data.expectedDeliveryDate,
         totalAmount: data.quantity * data.unitPrice
-      };
+      } as PurchaseOrder;
     },
-    onSuccess: () => {
+    onSuccess: (newOrder) => {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      onSubmit(newOrder); 
       reset();
       onClose();
     }
   });
 
-  const onSubmit = (data: PurchaseOrderFormData) => {
+  const onFormSubmit = (data: PurchaseOrderFormData) => {
     mutation.mutate(data);
   };
 
@@ -100,7 +122,7 @@ export default function ProcurementForm({ product, isOpen, onClose }: Procuremen
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="product">Product</Label>
             <Input id="product" value={product.name} disabled className="bg-zinc-50" />
@@ -108,14 +130,26 @@ export default function ProcurementForm({ product, isOpen, onClose }: Procuremen
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="supplier">Supplier</Label>
-            <Input 
-              id="supplier" 
-              value={defaultSupplier?.name || 'No preferred supplier'} 
-              disabled 
-              className="bg-zinc-50" 
+            <Label htmlFor="supplierId">Supplier</Label>
+            <Controller
+              control={control}
+              name="supplierId"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className={errors.supplierId ? 'border-rose-500' : ''}>
+                    <SelectValue placeholder="Select a supplier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MOCK_SUPPLIERS.map(supplier => (
+                      <SelectItem key={supplier.id} value={supplier.id}>
+                        {supplier.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
-            <input type="hidden" {...register('supplierId')} />
+            {errors.supplierId && <p className="text-[10px] text-rose-500">{errors.supplierId.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -154,13 +188,9 @@ export default function ProcurementForm({ product, isOpen, onClose }: Procuremen
           </div>
 
           <DialogFooter className="pt-4">
-            <Button variant="outline" type="button" onClick={onClose}>Cancel</Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="bg-orange-500 hover:bg-orange-600"
-            >
-              {isSubmitting ? 'Processing...' : 'Submit Order'}
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? 'Creating...' : 'Create Order'}
             </Button>
           </DialogFooter>
         </form>

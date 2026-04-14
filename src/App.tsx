@@ -13,6 +13,7 @@ import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
 import Dashboard from './features/dashboard/Dashboard';
 import Inventory from './features/inventory/Inventory';
+import Procurement from './features/procurement/Procurement';
 import { AnimatePresence, motion } from 'motion/react';
 import { Product, PurchaseOrder } from './types';
 
@@ -26,7 +27,9 @@ export default function App() {
       case 'dashboard':
         return <Dashboard products={products} orders={orders} />;
       case 'inventory':
-        return <Inventory products={products} setProducts={setProducts} />;
+        return <Inventory products={products} setProducts={setProducts} setOrders={setOrders} />;
+      case 'procurement':
+        return <Procurement orders={orders} setOrders={setOrders} products={products} setProducts={setProducts} />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-[calc(100vh-120px)] text-zinc-400">
