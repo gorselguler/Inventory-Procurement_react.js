@@ -14,6 +14,7 @@ import Navbar from './components/layout/Navbar';
 import Dashboard from './features/dashboard/Dashboard';
 import Inventory from './features/inventory/Inventory';
 import Procurement from './features/procurement/Procurement';
+import SettingsPage from './features/settings/Settings';
 import { AnimatePresence, motion } from 'motion/react';
 import { Product, PurchaseOrder } from './types';
 
@@ -30,6 +31,8 @@ export default function App() {
         return <Inventory products={products} setProducts={setProducts} setOrders={setOrders} />;
       case 'procurement':
         return <Procurement orders={orders} setOrders={setOrders} products={products} setProducts={setProducts} />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-[calc(100vh-120px)] text-zinc-400">
