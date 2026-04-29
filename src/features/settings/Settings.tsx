@@ -1,14 +1,24 @@
 import React from 'react';
 import { useCurrency } from '../../lib/CurrencyContext';
+import { useTheme, Theme } from '../../lib/ThemeContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Label } from '../../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
-import { Settings, Globe, Wallet, Bell, Shield } from 'lucide-react';
+import { Settings, Globe, Wallet, Bell, Palette } from 'lucide-react';
 
 export default function SettingsPage() {
   const { currency, setCurrency, currencies } = useCurrency();
+  const { theme, setTheme } = useTheme();
+
+  const themes: { id: Theme; label: string; color: string }[] = [
+    { id: 'light', label: 'Light', color: 'bg-white border-zinc-200' },
+    { id: 'dark', label: 'Dark', color: 'bg-zinc-900 border-zinc-800' },
+    { id: 'indigo', label: 'Indigo', color: 'bg-indigo-600 border-indigo-500' },
+    { id: 'rose', label: 'Rose', color: 'bg-rose-600 border-rose-500' },
+    { id: 'emerald', label: 'Emerald', color: 'bg-emerald-600 border-emerald-500' },
+  ];
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -20,6 +30,38 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6 text-left">
+        {/* Appearance */}
+        <Card className="border-zinc-200">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-zinc-500" />
+              <CardTitle className="text-lg">Appearance</CardTitle>
+            </div>
+            <CardDescription>Customize how the application looks.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
+              <Label>Theme</Label>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {themes.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setTheme(t.id)}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                      theme === t.id
+                        ? 'border-indigo-600 bg-indigo-50/50'
+                        : 'border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50'
+                    }`}
+                  >
+                    <div className={`w-full h-12 rounded-lg border ${t.color}`} />
+                    <span className="text-sm font-medium">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Localization & Regional */}
         <Card className="border-zinc-200">
           <CardHeader>
